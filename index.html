@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مولد كلمات المرور</title>
+<style>
+body{font-family:Arial,sans-serif;background:#0f172a;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}
+.card{background:#1e293b;padding:24px;border-radius:16px;max-width:420px;width:92%;box-shadow:0 8px 25px rgba(0,0,0,.3)}
+h2{text-align:center}
+input[type=range],input[type=text],button{width:100%}
+input[type=text]{padding:10px;font-size:16px;border-radius:8px;border:none;margin:10px 0}
+label{display:block;margin:6px 0}
+button{padding:10px;margin-top:8px;border:none;border-radius:8px;cursor:pointer}
+.bar{height:10px;background:#334155;border-radius:5px;margin-top:8px;overflow:hidden}
+.fill{height:100%;width:0;background:red;transition:.3s}
+.small{text-align:center;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="card">
+<h2>🔐 مولد كلمات المرور</h2>
+<input type="text" id="pwd" readonly>
+<label>الطول: <span id="lenv">16</span></label>
+<input type="range" id="len" min="8" max="64" value="16">
+<label><input type="checkbox" id="u" checked> أحرف كبيرة</label>
+<label><input type="checkbox" id="l" checked> أحرف صغيرة</label>
+<label><input type="checkbox" id="n" checked> أرقام</label>
+<label><input type="checkbox" id="s" checked> رموز</label>
+<button onclick="gen()">توليد</button>
+<button onclick="copyPwd()">نسخ</button>
+<div class="bar"><div class="fill" id="fill"></div></div>
+<div class="small" id="strength">القوة: -</div>
+</div>
+<script>
+const U="ABCDEFGHIJKLMNOPQRSTUVWXYZ",L="abcdefghijklmnopqrstuvwxyz",N="0123456789",S="!@#$%^&*()_+-=[]{}?";
+len.oninput=()=>lenv.textContent=len.value;
+function gen(){
+ let chars="";
+ if(u.checked)chars+=U;if(l.checked)chars+=L;if(n.checked)chars+=N;if(s.checked)chars+=S;
+ if(!chars){alert("اختر نوعًا واحدًا على الأقل");return;}
+ let out="";
+ const a=new Uint32Array(len.value);crypto.getRandomValues(a);
+ for(let i=0;i<a.length;i++)out+=chars[a[i]%chars.length];
+ pwd.value=out;score(out);
+}
+function score(p){
+ let sc=0;
+ if(p.length>=12)sc++; if(/[A-Z]/.test(p))sc++; if(/[a-z]/.test(p))sc++;
+ if(/\d/.test(p))sc++; if(/[^A-Za-z0-9]/.test(p))sc++;
+ let w=[20,40,60,80,100][Math.max(0,sc-1)];
+ fill.style.width=w+"%";
+ let t="ضعيفة",c="red";
+ if(sc>=3){t="متوسطة";c="orange";}
+ if(sc>=5){t="قوية";c="limegreen";}
+ fill.style.background=c; strength.textContent="القوة: "+t;
+}
+function copyPwd(){
+ if(!pwd.value)return;
+ navigator.clipboard.writeText(pwd.value);
+ alert("تم النسخ");
+}
+gen();
+</script>
+</body></html>
